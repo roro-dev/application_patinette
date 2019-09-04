@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "241742466190",
+    "firebase_url": "https://patinette-251810.firebaseio.com",
+    "project_id": "patinette-251810",
+    "storage_bucket": "patinette-251810.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241742466190:android:3aad38e65ea76b1e",
+        "android_client_info": {
+          "package_name": "com.patinette"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "241742466190-5pio218acn4adgt8v235ev4hdmues12t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDly4srltUXWe5EufDAxPKqwD70ZxUfPts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "241742466190-5pio218acn4adgt8v235ev4hdmues12t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

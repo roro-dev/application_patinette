@@ -28,12 +28,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  GoogleMapController mapController;
+  Completer<GoogleMapController> _controller = Completer();
   static final CameraPosition _paris = CameraPosition(
     target: LatLng(48.8534100, 2.3488000),
     zoom: 14,
   );
   Location location = Location();
+
+  Map<String, double> currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    location.onLocationChanged().listen((value) {
+      setState(() {
+        currentLocation = value as Map<String, double>;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +60,17 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
       ),
       body: GoogleMap(
+        mapType: MapType.normal,
         initialCameraPosition: _paris,
-        onMapCreated: _onMapCreated,
-        myLocationButtonEnabled: true,
-        myLocationEnabled: true,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
         markers: {
           trot1, trot2, trot3, trot4
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _test,
+        onPressed: _getLocation,
         label: Text('Déverouiller'),
         icon: Icon(Icons.lock_open),
         backgroundColor: Color(0xff6bd6f1),
@@ -65,26 +78,18 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _onMapCreated(GoogleMapController controller) {
-    setState(() {
-     mapController = controller;
-    });
+  Future<Map<String, double>> _getLocation() async {
+    var currentLocation = <String, double>{};
+    try {
+      currentLocation = (await location.getLocation()) as Map<String, double>;
+    } catch (e) {
+      currentLocation = null;
+    }
+    print(currentLocation);
+    print("Current coordinates: ${currentLocation["latitude"]}, ${currentLocation["longitude"]}");
+    return currentLocation;
   }
 
-  _test() {
-    print('Test');
-  }
-
-  _animateToUser() async {
-    var pos = await location.getLocation();
-    print(pos);
-    mapController.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: LatLng(pos.latitude, pos.longitude),
-        zoom: 17.0,
-      )
-    ));
-  }
 }
 
 /// Points des trottinettes
