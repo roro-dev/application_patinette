@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:barcode_scan/barcode_scan.dart';
 
 void main() => runApp(MyApp());
 
@@ -34,9 +33,19 @@ class _MyHomePageState extends State<MyHomePage> {
     target: LatLng(48.8534100, 2.3488000),
     zoom: 14,
   );
-  
-  var location = new Location();
-  Map<String, double> userLocation;
+  Location location = Location();
+
+  Map<String, double> currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    location.onLocationChanged().listen((value) {
+      setState(() {
+        currentLocation = value as Map<String, double>;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _getLocation().then((value) {
-            setState(() {
-              userLocation = value;
-            });
-          });
-        },
+        onPressed: _getLocation,
         label: Text('Déverouiller'),
         icon: Icon(Icons.lock_open),
         backgroundColor: Color(0xff6bd6f1),
@@ -75,35 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> _neverSatisfied() async {
-  var currentLocation = _getLocation();
-  print(currentLocation);
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Rewind and remember'),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('You will never be satisfied.'),
-              Text('You\’re like me. I’m never satisfied.'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Regret'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
   Future<Map<String, double>> _getLocation() async {
     var currentLocation = <String, double>{};
     try {
@@ -111,27 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       currentLocation = null;
     }
+    print("Current coordinates: ${currentLocation["latitude"]}, ${currentLocation["longitude"]}");
     return currentLocation;
-  }
-
-  Future barcodeScanning() async {
-    try {
-      String barcode = await BarcodeScanner.scan();
-      setState(() => this.barcode = barcode);
-    } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied) {
-        setState(() {
-          this.barcode = 'No camera permission!';
-        });
-      } else {
-        setState(() => this.barcode = 'Unknown error: $e');
-      }
-    } on FormatException {
-      setState(() => this.barcode =
-          'Nothing captured.');
-    } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
-    }
   }
 
 }
