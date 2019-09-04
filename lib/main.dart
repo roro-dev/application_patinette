@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:location/location.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,12 +30,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String result  = "";
   GoogleMapController mapController;
   static final CameraPosition _paris = CameraPosition(
     target: LatLng(48.8534100, 2.3488000),
     zoom: 14,
   );
   Location location = Location();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+     result = ""; 
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +58,36 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ),
       ),
-      body: GoogleMap(
-        initialCameraPosition: _paris,
-        onMapCreated: _onMapCreated,
-        myLocationButtonEnabled: true,
-        myLocationEnabled: true,
-        markers: {
-          trot1, trot2, trot3, trot4
-        },
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            initialCameraPosition: _paris,
+            onMapCreated: _onMapCreated,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            markers: {
+              trot1, trot2, trot3, trot4
+            },
+          ),
+          Center(
+            child: Text(
+            result,
+            style: new TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.white,
+            ),
+          ),
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _test,
+        onPressed: _scanQr,
         label: Text('Déverouiller'),
         icon: Icon(Icons.lock_open),
         backgroundColor: Color(0xff6bd6f1),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -71,19 +97,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _test() {
-    print('Test');
-  }
-
-  _animateToUser() async {
-    var pos = await location.getLocation();
-    print(pos);
-    mapController.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(
-        target: LatLng(pos.latitude, pos.longitude),
-        zoom: 17.0,
-      )
-    ));
+  Future _scanQr() async{
+    try {
+      String qrResult = await BarcodeScanner.scan();
+      setState(() {
+        result = qrResult;
+      });
+    } on PlatformException catch(ex) {
+      if(ex.code == BarcodeScanner.CameraAccessDenied) {
+        setState(() {
+          result = "Permission denied : camera";
+        });
+      } else {
+        setState(() {
+         result = "Erreur inconnue $ex";
+        });
+      }
+    } catch(ex) {
+      setState(() {
+        result = "Erreur inconnue $ex";
+      });
+    }
+    
   }
 }
 
