@@ -31,6 +31,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String result  = "";
+  String buttonText = "Déverouiller";
+  Icon buttonIcon = Icon(Icons.lock_open);
+  bool onRoute = false;
   GoogleMapController mapController;
   static final CameraPosition _paris = CameraPosition(
     target: LatLng(48.8534100, 2.3488000),
@@ -77,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton.extended(
         tooltip: result,
         onPressed: _scanQr,
-        label: Text('Déverouiller'),
-        icon: Icon(Icons.lock_open),
+        label: Text(buttonText),
+        icon: buttonIcon,
         backgroundColor: Color(0xff6bd6f1),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -93,52 +96,71 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future _scanQr() async{
     String title = "Erreur";
-    try {
-      String qrResult = await BarcodeScanner.scan();
+    if(onRoute == true) {
       setState(() {
-        result = qrResult;
-        result = "Trottinette scannée avec succès : N°$result";
-        title = "Succès";
+        result = "La course a été arrétée.";
+        title = "Course finie";
+        buttonText = "Déverrouiller";
+        buttonIcon = Icon(Icons.lock_open);
+        onRoute = false;
       });
-    } on PlatformException catch(ex) {
-      if(ex.code == BarcodeScanner.CameraAccessDenied) {
+    } else {
+      try {
+        String qrResult = await BarcodeScanner.scan();
         setState(() {
-          result = "Permission refusé : vous n'avez pas accepté l'accès à l'appareil photo.";
+          result = "Trottinette scannée avec succès : N°$qrResult";
+          title = "Succès";
+          buttonText = "Verrouiller";
+          buttonIcon = Icon(Icons.lock_outline);
+          onRoute = true;
         });
-      } else {
+      } on PlatformException catch(ex) {
+        if(ex.code == BarcodeScanner.CameraAccessDenied) {
+          setState(() {
+            result = "Permission refusé : vous n'avez pas accepté l'accès à l'appareil photo.";
+          });
+        } else {
+          setState(() {
+          result = "Erreur inconnue";
+          });
+        }
+      } catch(ex) {
         setState(() {
-         result = "Erreur inconnue";
+          result = "Erreur inconnue";
         });
       }
-    } catch(ex) {
-      setState(() {
-        result = "Erreur inconnue";
-      });
     }
     return showDialog<void>(
-          context: context,
-          barrierDismissible: false, // user must tap button!
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(title),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    Text(result, textAlign: TextAlign.center,),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Fermer'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(result, textAlign: TextAlign.center,),
               ],
-            );
-          },
-        ); 
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Fermer'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    ); 
+  }
+
+  Future _stopCourse() {
+    setState(() {      
+        buttonText = "Déverrouiller";
+        buttonIcon = Icon(Icons.lock_open);
+    });
   }
 }
 
