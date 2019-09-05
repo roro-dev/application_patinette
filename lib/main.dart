@@ -45,14 +45,9 @@ class _MyHomePageState extends State<MyHomePage> {
     zoom: 18,
   );
   Location location = Location();
-
-  var timeout = Duration(seconds: 3);
-  var ms = Duration(milliseconds: 1);
-
   @override
   void initState() {
     super.initState();
-    result = "";
   }  
 
   @override
@@ -124,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
         } else {
           stopwatch.stop();
         }
-        result = "La course a été arrétée. $ms";
+        result = "La course a été arrétée. $time minutes";
         title = "Course finie";
         buttonText = "Déverrouiller";
         buttonIcon = Icon(Icons.lock_open);
@@ -181,11 +176,6 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     ); 
-  }
-
-  _startTimeout([int milliseconds]) {
-    var duration = milliseconds == null ? timeout : ms * milliseconds;
-    return new Timer(duration, null);
   }
 }
 
