@@ -5,6 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,7 +30,6 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   String result  = "";
   String buttonText = "Déverouiller";
@@ -36,11 +37,10 @@ class _MyHomePageState extends State<MyHomePage> {
   bool onRoute = false;
   GoogleMapController mapController;
   static final CameraPosition _paris = CameraPosition(
-    target: LatLng(48.8534100, 2.3488000),
-    zoom: 13,
+    target: LatLng(48.854267, 2.388260),
+    zoom: 18,
   );
   Location location = Location();
-
   @override
   void initState() {
     super.initState();
@@ -60,7 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           leading: IconButton(
               icon: const Icon(Icons.account_circle),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PageConnexion()),
+                );
+              },
               color: Colors.white,
             ),
       ),
@@ -90,12 +95,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _onMapCreated(GoogleMapController controller) {
     setState(() {
-     mapController = controller;
+      mapController = controller;
     });
   }
 
   Future _scanQr() async{
     String title = "Erreur";
+
     if(onRoute == true) {
       setState(() {
         result = "La course a été arrétée.";
@@ -155,12 +161,60 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     ); 
   }
+}
 
-  Future _stopCourse() {
-    setState(() {      
-        buttonText = "Déverrouiller";
-        buttonIcon = Icon(Icons.lock_open);
-    });
+class PageConnexion extends StatelessWidget {
+
+  _ggUrl() async {
+    String url = "https://accounts.google.fr";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  _fbUrl() async {
+    String url = "https://www.facebook.com/login";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: new Center(
+            child: new Text(
+              "Connexion / Inscription", textAlign: TextAlign.center, style: TextStyle(
+                color: Colors.white
+                ),
+            )
+          ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Connectez-vous avec votre email', style: TextStyle(fontWeight: FontWeight.bold),),
+            Text('OU'),
+            SignInButton(
+              Buttons.Google,
+              text: "Connexion avec Google",
+              onPressed: _ggUrl,
+            ),
+            SignInButton(
+              Buttons.Facebook,
+              text: "Connexion avec Facebook",
+              onPressed: _fbUrl,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
