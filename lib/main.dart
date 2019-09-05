@@ -34,17 +34,15 @@ class _MyHomePageState extends State<MyHomePage> {
   GoogleMapController mapController;
   static final CameraPosition _paris = CameraPosition(
     target: LatLng(48.8534100, 2.3488000),
-    zoom: 14,
+    zoom: 13,
   );
   Location location = Location();
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-     result = ""; 
-    });
-  }
+    result = "";
+  }  
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +55,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
             )
           ),
+          leading: IconButton(
+              icon: const Icon(Icons.account_circle),
+              onPressed: () {},
+              color: Colors.white,
+            ),
       ),
       body: Stack(
         children: <Widget>[
@@ -69,25 +72,20 @@ class _MyHomePageState extends State<MyHomePage> {
               trot1, trot2, trot3, trot4
             },
           ),
-          Center(
-            child: Text(
-            result,
-            style: new TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              backgroundColor: Colors.white,
-            ),
-          ),
-          )
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        tooltip: result,
         onPressed: _scanQr,
         label: Text('Déverouiller'),
         icon: Icon(Icons.lock_open),
         backgroundColor: Color(0xff6bd6f1),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      bottomNavigationBar: Text(
+        result,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -118,7 +116,33 @@ class _MyHomePageState extends State<MyHomePage> {
         result = "Erreur inconnue $ex";
       });
     }
-    
+  }
+
+  Future <void> _displayCode() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Trottinette scannée'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(result, textAlign: TextAlign.center,),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Regret'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
