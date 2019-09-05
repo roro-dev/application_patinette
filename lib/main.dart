@@ -34,13 +34,21 @@ class _MyHomePageState extends State<MyHomePage> {
   String result  = "";
   String buttonText = "Déverouiller";
   Icon buttonIcon = Icon(Icons.lock_open);
+
   bool onRoute = false;
+
+  var stopwatch;
+
   GoogleMapController mapController;
   static final CameraPosition _paris = CameraPosition(
     target: LatLng(48.854267, 2.388260),
     zoom: 18,
   );
   Location location = Location();
+
+  var timeout = Duration(seconds: 3);
+  var ms = Duration(milliseconds: 1);
+
   @override
   void initState() {
     super.initState();
@@ -53,9 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: new Center(
             child: new Text(
-              widget.title, textAlign: TextAlign.center, style: TextStyle(
+              widget.title, 
+              textAlign: TextAlign.center, 
+              style: TextStyle(
                 color: Colors.white
-                ),
+              ),
             )
           ),
           leading: IconButton(
@@ -99,12 +109,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  double _calcTime(int ms) {
+    return ms / 60000;
+  }
+
   Future _scanQr() async{
     String title = "Erreur";
-
+    double time = 0.0;
     if(onRoute == true) {
       setState(() {
-        result = "La course a été arrétée.";
+        if (stopwatch.isRunning) {
+          time = _calcTime(stopwatch.elapsedMilliseconds);
+          print("Minutes : $time");
+        } else {
+          stopwatch.stop();
+        }
+        result = "La course a été arrétée. $ms";
         title = "Course finie";
         buttonText = "Déverrouiller";
         buttonIcon = Icon(Icons.lock_open);
@@ -114,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         String qrResult = await BarcodeScanner.scan();
         setState(() {
+          stopwatch = new Stopwatch()..start();
           result = "Trottinette scannée avec succès : N°$qrResult";
           title = "Succès";
           buttonText = "Verrouiller";
@@ -160,6 +181,11 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     ); 
+  }
+
+  _startTimeout([int milliseconds]) {
+    var duration = milliseconds == null ? timeout : ms * milliseconds;
+    return new Timer(duration, null);
   }
 }
 
