@@ -82,10 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Color(0xff6bd6f1),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: Text(
-        result,
-        textAlign: TextAlign.center,
-      ),
     );
   }
 
@@ -96,53 +92,53 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future _scanQr() async{
+    String title = "Erreur";
     try {
       String qrResult = await BarcodeScanner.scan();
       setState(() {
         result = qrResult;
+        result = "Trottinette scannée avec succès : N°$result";
+        title = "Succès";
       });
     } on PlatformException catch(ex) {
       if(ex.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {
-          result = "Permission denied : camera";
+          result = "Permission refusé : vous n'avez pas accepté l'accès à l'appareil photo.";
         });
       } else {
         setState(() {
-         result = "Erreur inconnue $ex";
+         result = "Erreur inconnue";
         });
       }
     } catch(ex) {
       setState(() {
-        result = "Erreur inconnue $ex";
+        result = "Erreur inconnue";
       });
     }
-  }
-
-  Future <void> _displayCode() async {
     return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Trottinette scannée'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(result, textAlign: TextAlign.center,),
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(title),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text(result, textAlign: TextAlign.center,),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Fermer'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Regret'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+            );
+          },
+        ); 
   }
 }
 
