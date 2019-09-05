@@ -105,21 +105,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   double _calcTime(int ms) {
-    return ms / 60000;
+    return (ms / 60000);
+  }
+
+  double _calcPrix(double minutes) {
+    List time = minutes.toString().split('.');
+    int nbMin = int.parse(time[0]);
+    double prix = nbMin * 0.15 + 1;
+    return prix;
   }
 
   Future _scanQr() async{
     String title = "Erreur";
-    double time = 0.0;
+    double time = 0;
     if(onRoute == true) {
       setState(() {
         if (stopwatch.isRunning) {
           time = _calcTime(stopwatch.elapsedMilliseconds);
-          print("Minutes : $time");
         } else {
           stopwatch.stop();
         }
-        result = "La course a été arrétée. $time minutes";
+        double prix = _calcPrix(time);
+        result = "La course a été arrétée. \n";
+        result += "Durée : ${time.toStringAsFixed(2).replaceAll('.', ':')} minutes\n";
+        result += "Prix : ${prix.toStringAsFixed(2).replaceAll('.', ',')} €";
         title = "Course finie";
         buttonText = "Déverrouiller";
         buttonIcon = Icon(Icons.lock_open);
@@ -161,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text(result, textAlign: TextAlign.center,),
+                Text(result),
               ],
             ),
           ),
