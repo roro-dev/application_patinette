@@ -53,17 +53,56 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: null,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/logo.png'),
+                  fit: BoxFit.contain
+                ),
+                color: Color(0xff6bd6f1),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.av_timer),
+              title: Text('Mes Courses'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.credit_card), 
+              title: Text('Mon Porte Monnaie'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.help), 
+              title: Text('Aide'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: new Center(
             child: new Text(
               widget.title, 
               textAlign: TextAlign.center, 
               style: TextStyle(
-                color: Colors.white
+                color: Colors.white,
               ),
             )
           ),
-          leading: IconButton(
+          actions: <Widget>[
+            IconButton(
               icon: const Icon(Icons.account_circle),
               onPressed: () {
                 Navigator.push(
@@ -73,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               color: Colors.white,
             ),
+          ]
       ),
       body: Stack(
         children: <Widget>[
@@ -224,8 +264,6 @@ class PageConnexion extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Connectez-vous avec votre email', style: TextStyle(fontWeight: FontWeight.bold),),
-            Text('OU'),
             SignInButton(
               Buttons.Google,
               text: "Connexion avec Google",
